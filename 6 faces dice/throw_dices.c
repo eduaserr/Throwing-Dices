@@ -4,28 +4,25 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-static void	loading_bar(int dices)				// animación de carga
+static void clear_stdin(void)
 {
-	int steps = 15;
-	int display = (dices > 10) ? 10 : dices;
+	int ch;
+	while ((ch = getchar()) != '\n' && ch != EOF)
+		;
+}
 
-	for (int i = 0; i < steps; i++)
+static void	loading_bar()				// animación de carga
+{
+	int i = 0;
+
+	while (i++ < 15)
 	{
-		printf("\r\033[K");
-		printf("n ");
-		for (int j = 0; j < display; j++)
-		{
-			int random = 1 + rand() % 6;
-			printf("%d ", random);
-		}
-		if (dices > display)
-			printf("...");
+		int random = 1 + rand() % 6;
+		printf("\r%d", random);
 		fflush(stdout);
 		usleep(50000 + (i * 5000));
 	}
-	// limpiar la línea final
-	printf("\r\033[K\n");
-	fflush(stdout);
+	printf("\r");
 }
 
 static void	dice()						// generador de numero
@@ -51,12 +48,16 @@ static bool	rerun()						// repetir programa
 	while (1)
 	{
 		printf("Quieres tirar de nuevo? Y/N\n");
-		scanf(" %c", &c);
-		while (getchar() != '\n');
+		if (scanf(" %c", &c) != 1)
+		{
+			clear_stdin();
+			return false;
+		}
+		clear_stdin();
 		if (c == 'Y' || c == 'y')
-			return (true);
+			return true;
 		else if (c == 'N' || c == 'n')
-			return (false);
+			return false;
 		else
 			printf("Comando desconocido. Por favor ingresa Y o N.\n");
 	}
@@ -65,23 +66,23 @@ static bool	rerun()						// repetir programa
 static void	validate_input(int *dices)	// parseo de input
 {
 	while (1)
+	{
+		printf("Cuantos dados vas a tirar? (1-99)\n");
+		int ret = scanf("%d", dices);
+		clear_stdin();
+		if (ret != 1)
 		{
-			printf("Cuantos dados vas a tirar?\n");
-			
-			if (scanf("%d", dices) == 1 && *dices > 0)
-			{
-				if (*dices < 100){
-					while (getchar() != '\n');
-					break ;
-				}
-				printf("No hay suficientes dados en la mesa!\n\n");
-			}
-			else
-			{
-				printf("Introduce un número válido mayor a 0.\n\n");
-				while (getchar() != '\n');
-			}
+			printf("Entrada inválida. Introduce un número.\n\n");
+			continue;
 		}
+		if (*dices >= 1 && *dices < 100)
+			break;
+		
+		if (*dices >= 100)
+			printf("No hay suficientes dados en la mesa! (máximo 99)\n\n");
+		else
+			printf("Introduce un número válido mayor a 0.\n\n");
+	}
 }
 
 int main()
@@ -91,7 +92,7 @@ int main()
 	do
 	{
 		validate_input(&dices);
-		loading_bar(dices);
+		loading_bar();
 		throws(dices);
 	} while (rerun());
 	return (0);

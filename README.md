@@ -39,11 +39,33 @@ Quieres tirar de nuevo? Y/N
 - ✅ Animación de carga visual
 - ✅ Máximo 99 dados por tirada
 - ✅ Generación aleatoria con `rand()` y `srand(time(NULL))`
+- ✅ Soporte para dados de 3 a 999 caras (versión multicaras)
+
+## 🔍 Validación de Entrada
+
+El programa valida correctamente la entrada del usuario para evitar errores:
+
+```c
+// Siempre limpiamos el buffer después de leer
+clear_stdin();
+
+// Verificamos que scanf leyó correctamente
+int ret = scanf("%d", &value);
+if (ret != 1) {
+	// Error: entrada no válida
+}
+
+// Verificamos el rango
+if (value >= 1 && value <= 99) {
+	// OK
+}
+```
 
 ## 📝 Notas
 
 - El programa limpia automáticamente el buffer de entrada
 - La animación se ralentiza progresivamente para mayor efecto visual
 - Resultados completamente aleatorios (dentro de los límites de `rand()`)
+- La versión multicaras soporta dados comunes: D4, D6, D8, D10, D12, D20, D100
 
 **¡Que tengas suerte en tus tiradas!** 🎲🍀
