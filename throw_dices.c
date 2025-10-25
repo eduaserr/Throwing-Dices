@@ -4,18 +4,28 @@
 #include <unistd.h>
 #include <stdbool.h>
 
-static void	loading_bar()				// animación de carga
+static void	loading_bar(int dices)				// animación de carga
 {
-	int i = 0;
+	int steps = 15;
+	int display = (dices > 10) ? 10 : dices;
 
-	while (i++ < 15)
+	for (int i = 0; i < steps; i++)
 	{
-		int random = 1 + rand() % 6;
-		printf("\r%d", random);
+		printf("\r\033[K");
+		printf("n ");
+		for (int j = 0; j < display; j++)
+		{
+			int random = 1 + rand() % 6;
+			printf("%d ", random);
+		}
+		if (dices > display)
+			printf("...");
 		fflush(stdout);
 		usleep(50000 + (i * 5000));
 	}
-	printf("\r");
+	// limpiar la línea final
+	printf("\r\033[K\n");
+	fflush(stdout);
 }
 
 static void	dice()						// generador de numero
@@ -81,7 +91,7 @@ int main()
 	do
 	{
 		validate_input(&dices);
-		loading_bar();
+		loading_bar(dices);
 		throws(dices);
 	} while (rerun());
 	return (0);
